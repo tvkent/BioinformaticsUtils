@@ -37,7 +37,7 @@ def convert(lines):
         if not next site or is next chromosome, print
         existing dictionary info, clear sites dict, and add to
         empty dict'''
-        else:
+        if sites:
             if chrom in sites:
                 last = int(pos) - 1
                 if max(sites[chrom])==last:
