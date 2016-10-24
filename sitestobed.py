@@ -40,7 +40,9 @@ def convert(lines):
         if sites:
             if chrom in sites:
                 last = int(pos) - 1
-                if max(sites[chrom])==last:
+                if type(sites[chrom]) is not int and len(sites[chrom]) > 1 and max(sites[chrom])==last:
+                    sites[chrom].append(pos)
+                elif type(sites[chrom]) is int and sites[chrom] == last:
                     sites[chrom].append(pos)
                 else:
                     beddf = get_segment(sites,beddf)
@@ -60,7 +62,7 @@ def get_segment(sites,beddf):
     min(items), end pos as max(items)+1, and chrom
     as key. add this series to beddf, return beddf
     '''
-
+    print(beddf.items())
     [(key, values)] = beddf.items()
     start = min(int(values))
     end = max(int(values))+1
