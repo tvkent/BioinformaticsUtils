@@ -22,38 +22,43 @@ def convert(lines):
     '''
 
     sites = {}
-    beddf = pd.DataFrame(columns=['CHROM','START','END'])
+    beddf = pd.DataFrame(columns=['#CHROM','START','END'])
 
     for line in lines:
 
         sline = line.split()
         chrom = sline[0]
         pos = int(sline[1])
-        #check if sites dict is empty, if so simply add
-        if not sites:
-            sites[chrom]=pos
+
         '''else check if largest key in dictionary is current key-1
         also check if still on same chromosome
         if not next site or is next chromosome, print
         existing dictionary info, clear sites dict, and add to
         empty dict'''
+
         if sites:
             if chrom in sites:
                 last = int(pos) - 1
-                if type(sites[chrom]) is not int and len(sites[chrom]) > 1 and max(sites[chrom])==last:
-                    sites[chrom].append(pos)
-                elif type(sites[chrom]) is int and sites[chrom] == last:
-                    sites[chrom].append(pos)
+
+                if max(sites[chrom])==last:
+                    sites[chrom].append(int(pos))
                 else:
                     beddf = get_segment(sites,beddf)
                     sites = {}
-                    sites[chrom]=pos
+                    sites = {chrom:[int(pos)]}
+
             else:
                 beddf = get_segment(sites,beddf)
                 sites = {}
-                sites[chrom]=pos
+                sites = {chrom:[int(pos)]}
 
-        return(beddf)
+        #check if sites dict is empty, if so simply add
+        if not sites:
+            sites = {chrom:[int(pos)]}
+	
+    beddf = get_segment(sites,beddf)
+
+    return(beddf)
 
 def get_segment(sites,beddf):
 
@@ -62,13 +67,12 @@ def get_segment(sites,beddf):
     min(items), end pos as max(items)+1, and chrom
     as key. add this series to beddf, return beddf
     '''
-    print(beddf.items())
-    [(key, values)] = beddf.items()
-    start = min(int(values))
-    end = max(int(values))+1
-    chrom = key
-    newline = pd.Series(list(chrom,start,end))
-    beddf = pd.concat(beddf,newline)
+    [(keys,values)] = sites.items()
+    start = min(values)
+    end = max(values)+1
+    chrom = keys
+    newline = pd.Series([chrom,start,end],index=['#CHROM','START','END'])
+    beddf = beddf.append(newline,ignore_index=True)
 
     return(beddf)
 
@@ -93,4 +97,5 @@ lines = infile.readlines()
 
 bed = convert(lines)
 
+bed[['START','END']]=bed[['START','END']].astype(int)
 printtofile(bed,args.output)
