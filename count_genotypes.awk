@@ -14,7 +14,7 @@ BEGIN{OFS = "\t"}
 
 	for (i = 5; i<=NF; ++i){
 
-		if( $i == "1" ){ count+=1 }
+		if( $i == "1" ){ het+=1 }
 		if( $i != "." ){ nonmissing+=1 }
 		if( $i == "0" ){ ref+=1 }
 		if( $i == "2" ){ alt+=1 }
