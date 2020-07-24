@@ -23,6 +23,7 @@ chpos<- subpos %>% mutate(gen=interp(x=subpos$position))
 
 setDT(chpos)
 chpos[,rate:=(shift(gen,1,type="lead")-gen)/(shift(position,1,type="lead")-position)]
+setcolorder(DT,c("position","rate","gen"))
 setDF(chpos)
 
 #output to stdout
