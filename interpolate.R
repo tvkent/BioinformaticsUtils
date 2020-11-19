@@ -1,7 +1,7 @@
 # USE: Rscript interpolate.R <positions> <genmap> > <outfile>
 
-library(magrittr,quietly = T)
-library(dplyr,quietly = T,warn.conflicts = F)
+#library(magrittr,quietly = T)
+library(tidyverse,quietly = T,warn.conflicts = F)
 library(stats,quietly = T)
 library(data.table,quietly = T,warn.conflicts = F)
 options(scipen = 999, digits = 22)
@@ -26,7 +26,10 @@ chpos[,rate:=(shift(gen,1,type="lead")-gen)/(shift(pos,1,type="lead")-pos)]
 setcolorder(chpos,c("pos","rate","gen"))
 
 setDF(chpos)
-chpos <- chpos %>% mutate(gen=gen + abs(dplyr::first(gen)))
+#reset genetic position to make first site 0, and add last site as same rate as second to last
+chpos <- chpos %>% mutate(gen=gen + abs(dplyr::first(gen))) %>% mutate(rate = ifelse(is.na(rate), nth(rate,-2), rate))
+#chpos <- as_tibble(chpos) %>% add_row(pos=max(map$V2),rate=dplyr::last(chpos$rate),gen=dplyr::last(chpos$gen))
+setDF(chpos)
 chpos$pos <- as.character(chpos$pos)
 
 #output to stdout
